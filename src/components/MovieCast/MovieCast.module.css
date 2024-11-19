@@ -1,0 +1,24 @@
+.list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.list li {
+    flex: 1 1 calc(25% - 20px);
+    max-width: calc(25% - 20px);
+    text-align: center;
+    border: 1px solid darkcyan;
+    transition: background-color 0.5s ease, border-radius 0.5s ease;
+}
+
+.list li:hover {
+    background-color: cadetblue;
+    border-radius: 8px;
+}
+
+.info {
+    font-family: monospace;
+    font-size: 16px;
+}

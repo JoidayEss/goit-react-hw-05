@@ -1,0 +1,23 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item {
+    border: 1px solid darkcyan;
+    background-color: lightcyan;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.info_1 {
+    font-family: monospace;
+    font-size: larger;
+    font-weight: bold;
+}
+
+.info {
+    font-family: monospace;
+    font-size: larger;
+}
