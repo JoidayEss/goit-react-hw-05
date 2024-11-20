@@ -1,62 +1,58 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { searchMovie } from "../../services/app.js";
+import { searchMovies } from "../../services/app.js";
 import Button from "../../components/Button/Button.jsx";
 import MovieList from "../../components/MovieList/MovieList.jsx";
 import s from "./MoviesPage.module.css";
 import Loader from "../../components/Loader/Loader.jsx";
-import Error from "../../components/Error/Error.jsx";
+import Error from "../../components/ErrorMessage/ErrorMessage.jsx";
 
 const MoviesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [movieList, setMovieList] = useState(null);
+  const [movies, setMovies] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  const handleSubmit = (e) => {
+  const onSearchSubmit = (e) => {
     e.preventDefault();
-    const newQuery = e.target.elements.query.value.toLowerCase().trim();
-    if (!newQuery) return;
-    setSearchParams(
-      {
-        query: newQuery,
-        page: 1,
-      },
-      { replace: true }
-    );
-    e.target.reset();
+    const searchValue = e.target.elements.query.value.trim().toLowerCase();
+    if (searchValue) {
+      setSearchParams({ query: searchValue, page: 1 }, { replace: true });
+      e.target.reset();
+    }
   };
 
-  const handlePage = (pageNumber) => {
-    setMovieList(null);
-    setSearchParams({
-      query: searchParams.get("query"),
-      page: pageNumber,
-    });
+  const handlePageChange = (page) => {
+    setMovies(null);
+    setSearchParams({ query: searchParams.get("query"), page });
   };
 
   useEffect(() => {
-    const currentQuery = searchParams.get("query");
-    const currentPage = parseInt(searchParams.get("page"));
+    const fetchMovies = async () => {
+      const query = searchParams.get("query");
+      const page = parseInt(searchParams.get("page") || 1);
 
-    if (!currentQuery) return;
-    (async () => {
+      if (!query) return;
+
+      setIsLoading(true);
+      setErrorMsg(null);
+
       try {
-        setIsLoading(true);
-        setError(null);
-        const filteredMovie = await searchMovie(currentQuery, currentPage);
-        setMovieList(filteredMovie);
+        const movieResults = await searchMovies(query, page);
+        setMovies(movieResults);
       } catch (error) {
-        setError(error);
+        setErrorMsg(error);
       } finally {
         setIsLoading(false);
       }
-    })();
+    };
+
+    fetchMovies();
   }, [searchParams]);
 
   return (
     <div>
-      <form className={s.form} onSubmit={handleSubmit}>
+      <form className={s.form} onSubmit={onSearchSubmit}>
         <input className={s.input} type="text" name="query" />
         <button className={s.button} type="submit">
           Search
@@ -64,18 +60,19 @@ const MoviesPage = () => {
       </form>
 
       {isLoading && <Loader />}
-      {error && <p>Error: {error.message}</p>}
+      {errorMsg && <p>Error: {errorMsg.message}</p>}
 
-      {movieList && (
+      {movies && (
         <>
-          <Button handlePage={handlePage} movieList={movieList} />
-          <MovieList list={movieList.results} />{" "}
+          <Button handlePageChange={handlePageChange} movieList={movies} />
+          <MovieList list={movies.results} />
         </>
       )}
-      {error && (
+
+      {errorMsg && (
         <Error
-          status={error.response?.status}
-          message={error.response?.data?.status_message}
+          status={errorMsg.response?.status}
+          message={errorMsg.response?.data?.status_message}
         />
       )}
     </div>

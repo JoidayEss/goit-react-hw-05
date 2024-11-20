@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { creditsMovie } from "../../services/app";
+import { useLocation, useParams } from "react-router-dom";
+import { getMovieCredits } from "../../services/app";
 import s from "./MovieCast.module.css";
 import Loader from "../Loader/Loader";
-import Error from "../Error/Error";
+import Error from "../ErrorMessage/ErrorMessage";
 
 const MovieCast = () => {
   const { movieId } = useParams();
+  const location = useLocation();
+  const movie = location.state?.movie;
   const [casts, setCasts] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ const MovieCast = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await creditsMovie(movieId);
+        const data = await getMovieCredits(movieId);
         setCasts(data);
         console.log(setCasts);
       } catch (error) {

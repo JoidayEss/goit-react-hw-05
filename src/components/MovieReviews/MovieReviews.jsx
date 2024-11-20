@@ -1,35 +1,42 @@
 import { useEffect, useState } from "react";
-import { reviewsMovie } from "../../services/app";
-import { useParams } from "react-router-dom";
+import { getMovieReviews } from "../../services/app";
+import { useLocation, useParams } from "react-router-dom";
 import s from "./MovieReviews.module.css";
 import Loader from "../Loader/Loader";
-import Error from "../Error/Error";
+import Error from "../ErrorMessage/ErrorMessage";
 
 const MovieReviews = () => {
+  const location = useLocation();
+  const movie = location.state?.movie;
   const { movieId } = useParams();
   const [reviews, setReviews] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    (async () => {
+    const fetchReviews = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setIsLoading(true);
-        setError(null);
-        const data = await reviewsMovie(movieId);
-        setReviews(data);
-        console.log(setReviews);
+        const data = await getMovieReviews(movieId);
+        if (data && data.results) {
+          setReviews(data);
+        } else {
+          setReviews({ results: [] });
+        }
       } catch (error) {
         setError(error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
-    })();
+    };
+
+    fetchReviews();
   }, [movieId]);
 
   return (
     <div>
-      {isLoading && <Loader />}
+      {loading && <Loader />}
       {error && (
         <Error
           status={error.response?.status}

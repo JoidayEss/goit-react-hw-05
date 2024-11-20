@@ -1,6 +1,6 @@
 import s from "./Button.module.css";
 
-const Button = ({ handlePage, movieList }) => {
+const Button = ({ handlePageChange, movieList }) => {
   if (!movieList) {
     return <p>Loading...</p>;
   }
@@ -10,7 +10,7 @@ const Button = ({ handlePage, movieList }) => {
         className={s.button}
         type="button"
         disabled={movieList.page <= 1}
-        onClick={() => handlePage(movieList.page - 1)}
+        onClick={() => handlePageChange(movieList.page - 1)}
       >
         Back
       </button>
@@ -21,7 +21,7 @@ const Button = ({ handlePage, movieList }) => {
         className={s.button}
         type="button"
         disabled={movieList.total_pages <= movieList.page}
-        onClick={() => handlePage(movieList.page + 1)}
+        onClick={() => handlePageChange(movieList.page + 1)}
       >
         Next
       </button>

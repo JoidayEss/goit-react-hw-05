@@ -1,4 +1,4 @@
-import s from "./Error.module.css";
+import s from "./ErrorMessage.module.css";
 
 const Error = ({ status, message }) => {
   return (

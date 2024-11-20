@@ -1,41 +1,46 @@
 import { useEffect, useState } from "react";
-import { fetchTrendingMovies } from "../../services/app.js";
+import { getTrendingMovies } from "../../services/app.js";
 import MovieList from "../../components/MovieList/MovieList.jsx";
 import Loader from "../../components/Loader/Loader.jsx";
-import Error from "../../components/Error/Error.jsx";
+import ErrorDisplay from "../../components/ErrorMessage/ErrorMessage.jsx";
 import s from "./HomePage.module.css";
 
 const HomePage = () => {
-  const [list, setList] = useState(null);
+  const [movies, setMovies] = useState(null);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const fetchTrendingMovies = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const trendingData = await getTrendingMovies();
+      setMovies(trendingData);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await fetchTrendingMovies();
-        setList(data);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
+    fetchTrendingMovies();
   }, []);
 
   return (
     <div>
-      {list && !error && <h2 className={s.title}>Top Trending movies</h2>}
-      {!list && !error && <div></div>}
-      {list && !error && <MovieList list={list.results} />}
-      {isLoading && <Loader />}
+      {loading && <Loader />}
       {error && (
-        <Error
+        <ErrorDisplay
           status={error.response?.status}
           message={error.response?.data?.status_message}
         />
+      )}
+      {movies && !error && (
+        <>
+          <h2 className={s.title}>Top Trending Movies</h2>
+          <MovieList list={movies.results} />
+        </>
       )}
     </div>
   );

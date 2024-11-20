@@ -1,62 +1,56 @@
 import axios from "axios";
 
-const TOKEN =
+const API_TOKEN =
   "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyOWZlYzBjYWI2MDQ4YjFkZGFiN2Q1NzlmMjJmNzBhMyIsIm5iZiI6MTczMTY4ODYyMi44Njg2NTEsInN1YiI6IjY3Mzc3NmIzNDhlOWQyY2YwMWE4YWZiZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3vpwFMYyPd5cp-qCF2evnb827dQMxaHScMIvsuRramQ";
-axios.defaults.baseURL = "https://api.themoviedb.org/3/";
+const BASE_URL = "https://api.themoviedb.org/3/";
 
-const options = {
+const apiClient = axios.create({
+  baseURL: BASE_URL,
   headers: {
-    Authorization: `Bearer ${TOKEN}`,
-    accept: "application/json",
+    Authorization: `Bearer ${API_TOKEN}`,
+    Accept: "application/json",
   },
-  params: {
-    language: "en-US",
-  },
-};
+});
 
-const fetchTrendingMovies = async (page = 1) => {
-  const response = await axios(`trending/movie/day`, {
-    ...options,
+export const getTrendingMovies = async (pageNumber = 1) => {
+  const response = await apiClient.get(`trending/movie/day`, {
     params: {
-      ...options.params,
+      language: "en-US",
       include_adult: false,
-      page,
+      page: pageNumber,
     },
   });
   return response.data;
 };
 
-const detailsMovie = async (movieId) => {
-  const response = await axios(`movie/${movieId}`, options);
+export const getMovieDetails = async (movieId) => {
+  const response = await apiClient.get(`movie/${movieId}`);
   return response.data;
 };
 
-const reviewsMovie = async (movieId, page = 1) => {
-  const response = await axios(`movie/${movieId}/reviews`, {
-    ...options,
-    params: { ...options.params, page },
+export const getMovieReviews = async (movieId, page = 1) => {
+  const response = await apiClient.get(`movie/${movieId}/reviews`, {
+    params: { page },
   });
   return response.data;
 };
 
-const creditsMovie = async (movieId) => {
-  const response = await axios(`movie/${movieId}/credits`, options);
+export const getMovieCredits = async (movieId) => {
+  const response = await apiClient.get(`movie/${movieId}/credits`);
   return response.data;
 };
 
-const searchMovie = async (query, page = 1) => {
-  if (!query) return console.log("Query is empty!");
-  const response = await axios(`search/movie`, {
-    ...options,
-    params: { ...options.params, include_adult: false, query, page },
+export const searchMovies = async (searchQuery, pageNumber = 1) => {
+  if (!searchQuery) {
+    console.warn("Empty search query!");
+    return;
+  }
+  const response = await apiClient.get(`search/movie`, {
+    params: {
+      query: searchQuery,
+      include_adult: false,
+      page: pageNumber,
+    },
   });
   return response.data;
-};
-
-export {
-  fetchTrendingMovies,
-  detailsMovie,
-  reviewsMovie,
-  creditsMovie,
-  searchMovie,
 };
