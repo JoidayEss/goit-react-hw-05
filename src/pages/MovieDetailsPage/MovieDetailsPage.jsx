@@ -40,7 +40,7 @@ const MovieDetailsPage = () => {
 
   return (
     <div>
-      <Link to={location.state?.from || "/movies"}>
+      <Link to={location.state || "/movies"}>
         <button className={s.button} type="button">
           Go back
         </button>
